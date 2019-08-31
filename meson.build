@@ -22,7 +22,7 @@
 
 project('krisa', 'c', version: '0.1', license: 'MIT')
 
-add_global_arguments('-fno-omit-frame-pointer', '-rdynamic', language: 'c')
+add_global_arguments('-fno-omit-frame-pointer', language: 'c')
 
 cc = meson.get_compiler('c')
 libgcc = cc.find_library('gcc')
