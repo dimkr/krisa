@@ -1,24 +1,15 @@
-0xab0 is in f (/usr/include/x86_64-linux-gnu/bits/stdio2.h:104).
-99	}
-100	
-101	__fortify_function int
-102	printf (const char *__restrict __fmt, ...)
-103	{
-104	  return __printf_chk (__USE_FORTIFY_LEVEL - 1, __fmt, __va_arg_pack ());
-105	}
-106	# elif !defined __cplusplus
-107	#  define printf(...) \
-108	  __printf_chk (__USE_FORTIFY_LEVEL - 1, __VA_ARGS__)
-0x995 is in main (../null-deref.c:43).
+0xad0 is in f (../null-deref.c:34).
+29	
+30	void f(const char *s)
+31	{
+32		printf("%c", 'a');
+33		printf("%c", 'b');
+34		printf("%c", s[0]);
+35		printf("%c", 'c');
+36	}
+37	
 38	int main(int argc, char *argv[])
-39	{
-40		krisa_init(-1);
-41	
-42		f(NULL);
-43		return EXIT_SUCCESS;
-44	}
-0x9ca is at ../null-deref.c:43.
-38	int main(int argc, char *argv[])
+0x995 is in main (../null-deref.c:44).
 39	{
 40		krisa_init(-1);
 41	
