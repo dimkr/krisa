@@ -1,0 +1,18 @@
+0xad0 is in f (../null-deref.c:10).
+5	
+6	void f(const char *s)
+7	{
+8		printf("%c", 'a');
+9		printf("%c", 'b');
+10		printf("%c", s[0]);
+11		printf("%c", 'c');
+12	}
+13	
+14	int main(int argc, char *argv[])
+0x995 is in main (../null-deref.c:20).
+15	{
+16		krisa_init(-1);
+17	
+18		f(NULL);
+19		return EXIT_SUCCESS;
+20	}

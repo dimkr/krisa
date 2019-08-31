@@ -1,0 +1,7 @@
+language: minimal
+
+services:
+  - docker
+
+script:
+  - docker run -w /root/krisa -v `pwd`:/root/krisa dimkr/c-dev:latest ./ci.sh
