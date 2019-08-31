@@ -9,7 +9,16 @@
 36	}
 37	
 38	int main(int argc, char *argv[])
-0x995 is in main (../null-deref.c:44).
+0x9b5 is in main (../null-deref.c:43).
+38	int main(int argc, char *argv[])
+39	{
+40		krisa_init(-1);
+41	
+42		f(NULL);
+43		return EXIT_SUCCESS;
+44	}
+0x9ea is at ../null-deref.c:43.
+38	int main(int argc, char *argv[])
 39	{
 40		krisa_init(-1);
 41	

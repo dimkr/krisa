@@ -25,7 +25,6 @@ project('krisa', 'c', version: '0.1', license: 'MIT')
 add_global_arguments('-fno-omit-frame-pointer', '-rdynamic', language: 'c')
 
 cc = meson.get_compiler('c')
-libdl = cc.find_library('dl')
 libgcc = cc.find_library('gcc')
 
 libkrisa_includes = include_directories('.')
@@ -34,7 +33,7 @@ libkrisa = static_library('krisa',
                           'krisa.c',
                           include_directories: libkrisa_includes,
                           install: true,
-                          dependencies: [libdl, libgcc])
+                          dependencies: libgcc)
 
 install_headers('krisa.h')
 
@@ -42,6 +41,6 @@ if get_option('ci')
 	null_deref = executable('null-deref',
 	                        'null-deref.c',
 	                        include_directories: libkrisa_includes,
-	                        c_args: ['-g'],
+	                        c_args: ['-g', '-U_FORTIFY_SOURCE'],
 	                        link_with: libkrisa)
 endif

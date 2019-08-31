@@ -30,23 +30,15 @@ offsets = []
 
 fp = open(sys.argv[1], "r")
 for line in fp:
-	match = re.match("(.+)\|0x[0-9a-f]+\|(0x[0-9a-f]+)", line)
-	if match:
-		path, offset, = match.groups()
-		if not os.path.basename(sys.argv[2]) in path:
-			continue
-
-		offsets.append(offset)
-		continue
-
-	if not os.path.basename(sys.argv[2]) in line:
-		continue
-
-	match = re.match("^([0-9a-f]+)-([0-9a-f]+)", line)
+	match = re.match("(.+)@([0-9a-f]+)", line)
 	if not match:
 		continue
 
-	start, end = match.groups()
+	path, offset, = match.groups()
+	if not os.path.basename(sys.argv[2]) in path:
+		continue
 
-for offset in offsets:
-	os.system("gdb-multiarch -batch -ex \"list *%s\" %s" % (offset, sys.argv[2]))
+	offsets.append(offset)
+
+for offset in offsets[2:]:
+	os.system("gdb-multiarch -batch -ex \"list *0x%s\" %s" % (offset, sys.argv[2]))

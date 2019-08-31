@@ -27,20 +27,19 @@
 #endif
 
 #include <unwind.h>
-#include <dlfcn.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <string.h>
 
 #include "krisa.h"
 
 #define MAX_TRACE_DEPTH 128
+#define MAX_MAPPED_REGIONS 64
 
-static char maps[16 * 1024];
-static ssize_t maps_len = 0;
 static int backtrace_fd = STDERR_FILENO;
 
 struct krisa_data {
@@ -64,34 +63,68 @@ static _Unwind_Reason_Code on_frame(struct _Unwind_Context *ctx,
 
 void krisa_backtrace_fd(const int fd)
 {
+	static char maps[16 * 1024];
 	static char buf[512];
 	static struct krisa_data data;
-	Dl_info info;
-	unsigned int i;
-	int len;
+	struct {
+		char path[128];
+		unsigned long start;
+		unsigned long end;
+	} regions[MAX_MAPPED_REGIONS];
+	char *pos, *l;
+	const char *path;
+	ssize_t out;
+	unsigned long off;
+	unsigned int i, nregions = 0, j;
+	int len, maps_fd;
 
 	data.n = 0;
 	_Unwind_Backtrace(on_frame, &data);
 	if (data.n == 0)
 		return;
 
-	if ((maps_len > 0) && (write(fd, maps, (size_t)maps_len) != maps_len))
+	maps_fd = open("/proc/self/maps", O_RDONLY);
+	if (maps_fd < 0)
+		return;
+
+	out = read(maps_fd, maps, sizeof(maps) - 1);
+	close(maps_fd);
+	if (out <= 0)
+		return;
+	maps[out] = '\0';
+
+	l = strtok_r(maps, "\n", &pos);
+	while (l) {
+		if (sscanf(l,
+		           "%lx-%lx %*s %*x %*u:%*u %*u %127s",
+		           &regions[nregions].start,
+		           &regions[nregions].end,
+		           regions[nregions].path) == 3) {
+			if (++nregions == (sizeof(regions) / sizeof(regions[0])))
+				break;
+		}
+
+		l = strtok_r(NULL, "\n", &pos);
+	}
+
+	if (nregions == 0)
 		return;
 
 	for (i = 0; (i < data.n) && data.ip[i]; ++i) {
-		info.dli_saddr = data.ip[i];
-		info.dli_fbase = data.ip[i];
+		path = "?";
+		off = 0;
 
-		dladdr(data.ip[i], &info);
+		for (j = 0; j < nregions; ++j) {
+			if ((data.ip[i] >= (void *)regions[j].start) &&
+			    (data.ip[i] < (void *)regions[j].end)) {
+				path = regions[j].path;
+				off = (unsigned long)((char *)data.ip[i] -
+				                      (char *)regions[j].start);
+				break;
+			}
+		}
 
-		len = snprintf(
-			buf,
-			sizeof(buf),
-			"%s|%p|%p\n",
-			info.dli_fname,
-			data.ip[i],
-			(void *)((char *)data.ip[i] - (char *)info.dli_fbase)
-		);
+		len = snprintf(buf, sizeof(buf), "%s@%lx\n", path, off);
 		if ((len < 0) || (len >= sizeof(buf)))
 			break;
 
@@ -115,16 +148,7 @@ void krisa_init(const int fd)
 {
 	const int sigs[] = {SIGILL, SIGABRT, SIGFPE, SIGSEGV, SIGBUS, SIGSYS};
 	struct sigaction sa;
-	int maps_fd;
 	unsigned int i;
-
-	maps_fd = open("/proc/self/maps", O_RDONLY);
-	if (maps_fd >= 0) {
-		maps_len = read(maps_fd, maps, sizeof(maps) - 1);
-		if (maps_len > 0)
-			maps[maps_len] = '\0';
-		close(maps_fd);
-	}
 
 	if (fd >= 0)
 		backtrace_fd = fd;
