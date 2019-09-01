@@ -38,16 +38,23 @@ if not cc.has_function('_Unwind_GetIP', prefix: '#include <unwind.h>', dependenc
     error('krisa requires _Unwind_GetIP()')
 endif
 
-add_global_arguments('-fno-omit-frame-pointer',
-                     '-funwind-tables',
-                     '-fasynchronous-unwind-tables',
-                     language: 'c')
+krisa_c_args = [
+	'-fno-omit-frame-pointer',
+	'-funwind-tables',
+	'-fasynchronous-unwind-tables'
+]
 
-libkrisa_includes = include_directories('.')
+if meson.is_subproject()
+	message('Assuming krisa_c_args have been added by the parent project')
+else
+	add_global_arguments(krisa_c_args, language: 'c')
+endif
+
+krisa_includes = include_directories('.')
 
 libkrisa = static_library('krisa',
                           'krisa.c',
-                          include_directories: libkrisa_includes,
+                          include_directories: krisa_includes,
                           install: true,
                           dependencies: libgcc)
 
@@ -56,7 +63,7 @@ install_headers('krisa.h')
 if get_option('ci')
 	null_deref = executable('null-deref',
 	                        'null-deref.c',
-	                        include_directories: libkrisa_includes,
+	                        include_directories: krisa_includes,
 	                        c_args: ['-g', '-U_FORTIFY_SOURCE'],
 	                        link_with: libkrisa)
 endif
