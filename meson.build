@@ -22,10 +22,26 @@
 
 project('krisa', 'c', version: '0.1', license: 'MIT')
 
-add_global_arguments('-fno-omit-frame-pointer', language: 'c')
-
 cc = meson.get_compiler('c')
+
 libgcc = cc.find_library('gcc')
+
+if not cc.has_header('unwind.h')
+    error('krisa requires unwind.h')
+endif
+
+if not cc.has_function('_Unwind_Backtrace', prefix: '#include <unwind.h>', dependencies: libgcc)
+    error('krisa requires _Unwind_Backtrace()')
+endif
+
+if not cc.has_function('_Unwind_GetIP', prefix: '#include <unwind.h>', dependencies: libgcc)
+    error('krisa requires _Unwind_GetIP()')
+endif
+
+add_global_arguments('-fno-omit-frame-pointer',
+                     '-funwind-tables',
+                     '-fasynchronous-unwind-tables',
+                     language: 'c')
 
 libkrisa_includes = include_directories('.')
 
