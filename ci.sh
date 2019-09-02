@@ -27,6 +27,7 @@ ninja -C build
 
 cp ./build/null-deref ./build/null-deref.stripped
 strip -s ./build/null-deref.stripped
-./build/null-deref.stripped > /tmp/krisa_dump 2>&1 && exit 1
+rm -f /tmp/krisa_dump
+./build/null-deref.stripped && exit 1
 ./parser.py /tmp/krisa_dump build/null-deref > /tmp/output.txt
 cmp output.txt /tmp/output.txt

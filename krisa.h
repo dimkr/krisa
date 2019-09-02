@@ -27,7 +27,7 @@
 
 #   include <krisa.h>
 
-void krisa_init(const int fd);
+void krisa_init(int (*get_fd)(void));
 
 void krisa_backtrace(void);
 void krisa_backtrace_fd(const int fd);

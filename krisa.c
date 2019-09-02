@@ -40,7 +40,7 @@
 #define MAX_TRACE_DEPTH 128
 #define MAX_MAPPED_REGIONS 64
 
-static int backtrace_fd = STDERR_FILENO;
+static int (*on_crash)(void) = NULL;
 
 struct krisa_data {
 	void *ip[MAX_TRACE_DEPTH];
@@ -135,7 +135,17 @@ void krisa_backtrace_fd(const int fd)
 
 void krisa_backtrace(void)
 {
-	krisa_backtrace_fd(backtrace_fd);
+	int fd;
+
+	if (on_crash) {
+		fd = on_crash();
+		if (fd < 0)
+			return;
+
+		krisa_backtrace_fd(fd);
+		close(fd);
+	} else
+		krisa_backtrace_fd(STDERR_FILENO);
 }
 
 static void on_sig(int sig)
@@ -144,14 +154,14 @@ static void on_sig(int sig)
 	raise(SIGKILL);
 }
 
-void krisa_init(const int fd)
+void krisa_init(int (*get_fd)(void))
 {
 	const int sigs[] = {SIGILL, SIGABRT, SIGFPE, SIGSEGV, SIGBUS, SIGSYS};
 	struct sigaction sa;
 	unsigned int i;
 
-	if (fd >= 0)
-		backtrace_fd = fd;
+	if (get_fd)
+		on_crash = get_fd;
 
 	sigemptyset(&sa.sa_mask);
 	sa.sa_handler = on_sig;

@@ -24,6 +24,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include <krisa.h>
 
@@ -35,9 +38,14 @@ void f(const char *s)
 	printf("%c", 'c');
 }
 
+static int open_dump(void)
+{
+    return open("/tmp/krisa_dump", O_CREAT | O_TRUNC | O_WRONLY, 0644);
+}
+
 int main(int argc, char *argv[])
 {
-	krisa_init(-1);
+	krisa_init(open_dump);
 
 	f(NULL);
 	return EXIT_SUCCESS;
