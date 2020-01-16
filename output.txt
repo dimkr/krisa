@@ -1,4 +1,4 @@
-0xaf0 is in f (../null-deref.c:37).
+0xb40 is in f (../null-deref.c:37).
 32	
 33	void f(const char *s)
 34	{
@@ -9,7 +9,7 @@
 39	}
 40	
 41	static int open_dump(void)
-0x9b7 is in main (../null-deref.c:51).
+0xa07 is in main (../null-deref.c:51).
 46	int main(int argc, char *argv[])
 47	{
 48		krisa_init(open_dump);
@@ -17,7 +17,7 @@
 50		f(NULL);
 51		return EXIT_SUCCESS;
 52	}
-0x9ea is at ../null-deref.c:51.
+0xa3a is at ../null-deref.c:51.
 46	int main(int argc, char *argv[])
 47	{
 48		krisa_init(open_dump);
