@@ -26,6 +26,7 @@
 #   define _GNU_SOURCE
 #endif
 
+#include <stdlib.h>
 #include <unwind.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -157,15 +158,24 @@ static void on_sig(int sig)
 void krisa_init(int (*get_fd)(void))
 {
 	const int sigs[] = {SIGILL, SIGABRT, SIGFPE, SIGSEGV, SIGBUS, SIGSYS};
+	stack_t stack = {.ss_size = SIGSTKSZ, .ss_flags = 0};
 	struct sigaction sa;
 	unsigned int i;
 
-	if (get_fd)
-		on_crash = get_fd;
-
 	sigemptyset(&sa.sa_mask);
 	sa.sa_handler = on_sig;
-	sa.sa_flags = SA_RESTART | SA_ONSTACK;
+	sa.sa_flags = SA_RESTART;
+
+	stack.ss_sp = malloc(stack.ss_size);
+	if (stack.ss_sp) {
+		if (sigaltstack(&stack, NULL) < 0)
+			free(stack.ss_sp);
+		else
+			sa.sa_flags |= SA_ONSTACK;
+	}
+
+	if (get_fd)
+		on_crash = get_fd;
 
 	for (i = 0; i < sizeof(sigs) / sizeof(sigs[0]); ++i) {
 		signal(sigs[i], SIG_DFL);
