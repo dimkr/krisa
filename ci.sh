@@ -2,7 +2,7 @@
 
 # This file is part of krisa.
 #
-# Copyright (c) 2019 Dima Krasner
+# Copyright (c) 2019, 2020 Dima Krasner
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -30,4 +30,4 @@ strip -s ./build/null-deref.stripped
 rm -f /tmp/krisa_dump
 ./build/null-deref.stripped && exit 1
 ./parser.py /tmp/krisa_dump build/null-deref > /tmp/output.txt
-cmp output.txt /tmp/output.txt
+diff -u output.txt /tmp/output.txt
