@@ -1,7 +1,7 @@
 /*
  * This file is part of krisa.
  *
- * Copyright (c) 2019 Dima Krasner
+ * Copyright (c) 2019, 2020 Dima Krasner
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -167,6 +167,8 @@ void krisa_init(int (*get_fd)(void))
 	sa.sa_handler = on_sig;
 	sa.sa_flags = SA_RESTART | SA_ONSTACK;
 
-	for (i = 0; i < sizeof(sigs) / sizeof(sigs[0]); ++i)
+	for (i = 0; i < sizeof(sigs) / sizeof(sigs[0]); ++i) {
+		signal(sigs[i], SIG_DFL);
 		sigaction(sigs[i], &sa, NULL);
+	}
 }
