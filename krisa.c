@@ -70,6 +70,7 @@ void krisa_backtrace_fd(const int fd)
 		char path[128];
 		unsigned long start;
 		unsigned long end;
+		unsigned long off;
 	} regions[MAX_MAPPED_REGIONS];
 	char *pos, *l;
 	const char *path;
@@ -96,14 +97,14 @@ void krisa_backtrace_fd(const int fd)
 	l = strtok_r(maps, "\n", &pos);
 	while (l) {
 		if (sscanf(l,
-		           "%lx-%lx %*s %*x %*u:%*u %*u %127s",
+		           "%lx-%lx %*s %lx %*u:%*u %*u %127s",
 		           &regions[nregions].start,
 		           &regions[nregions].end,
-		           regions[nregions].path) == 3) {
+		           &regions[nregions].off,
+		           regions[nregions].path) == 4) {
 			if (++nregions == (sizeof(regions) / sizeof(regions[0])))
 				break;
 		}
-
 		l = strtok_r(NULL, "\n", &pos);
 	}
 
@@ -118,7 +119,8 @@ void krisa_backtrace_fd(const int fd)
 			if ((data.ip[i] >= (void *)regions[j].start) &&
 			    (data.ip[i] < (void *)regions[j].end)) {
 				path = regions[j].path;
-				off = (unsigned long)((char *)data.ip[i] -
+				off = regions[j].off +
+				      (unsigned long)((char *)data.ip[i] -
 				                      (char *)regions[j].start);
 				break;
 			}
