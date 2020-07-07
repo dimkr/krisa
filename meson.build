@@ -1,6 +1,6 @@
 # This file is part of krisa.
 #
-# Copyright (c) 2019 Dima Krasner
+# Copyright (c) 2019, 2020 Dima Krasner
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -58,12 +58,14 @@ libkrisa = static_library('krisa',
                           install: true,
                           dependencies: libgcc)
 
+krisa_dependency = declare_dependency(link_with: libkrisa,
+                                      include_directories: krisa_includes)
+
 install_headers('krisa.h')
 
 if get_option('ci')
 	null_deref = executable('null-deref',
 	                        'null-deref.c',
-	                        include_directories: krisa_includes,
 	                        c_args: ['-g', '-U_FORTIFY_SOURCE'],
-	                        link_with: libkrisa)
+	                        dependencies: krisa_dependency)
 endif
