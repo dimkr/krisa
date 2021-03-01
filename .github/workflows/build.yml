@@ -1,0 +1,20 @@
+name: build
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  schedule:
+    - cron: '0 0 * * 4'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: ci.sh
+        run: docker run -w /root/krisa -v `pwd`:/root/krisa dimkr/c-dev ./ci.sh

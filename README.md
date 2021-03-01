@@ -6,7 +6,7 @@
 |_|\_\_|  |_|___/\__,_|
 ```
 
-[![Build Status](https://travis-ci.org/dimkr/krisa.svg?branch=master)](https://travis-ci.org/dimkr/krisa)
+[![Build Status](https://github.com/dimkr/krisa/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/dimkr/krisa/actions)
 
 ## Overview
 
