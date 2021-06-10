@@ -17,4 +17,4 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: ci.sh
-        run: docker run -w /root/krisa -v `pwd`:/root/krisa dimkr/c-dev ./ci.sh
+        run: docker run -w /root/krisa -v `pwd`:/root/krisa ghcr.io/dimkr/containers/c-dev ./ci.sh
