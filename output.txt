@@ -1,4 +1,4 @@
-0x1374 is in f (../null-deref.c:37).
+0x13d4 is in f (../null-deref.c:37).
 32	
 33	void f(const char *s)
 34	{
@@ -9,15 +9,7 @@
 39	}
 40	
 41	static int open_dump(void)
-0x123b is in main (../null-deref.c:51).
-46	int main(int argc, char *argv[])
-47	{
-48		krisa_init(open_dump);
-49	
-50		f(NULL);
-51		return EXIT_SUCCESS;
-52	}
-0x126e is at ../null-deref.c:51.
+0x124b is in main (../null-deref.c:51).
 46	int main(int argc, char *argv[])
 47	{
 48		krisa_init(open_dump);
